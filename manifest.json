@@ -1,0 +1,14 @@
+{
+  "name": "El Empedador",
+  "short_name": "Empedador",
+  "description": "El juego de cartas para beber",
+  "start_url": "./empedador.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090d18",
+  "theme_color": "#d4a843",
+  "icons": [
+    { "src": "icon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
