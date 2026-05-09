@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#090d18">
+  <link rel="manifest" href="manifest.json">
+  <title>El Empedador 🥴</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #090d18;
+      --surface:   #111827;
+      --surface2:  #1a2336;
+      --surface3:  #232f45;
+      --gold:      #d4a843;
+      --gold-lt:   #e8c96a;
+      --gold-dim:  rgba(212,168,67,0.15);
+      --cream:     #f0e6c8;
+      --red:       #c0392b;
+      --red-dim:   rgba(192,57,43,0.18);
+      --green:     #27ae60;
+      --green-dim: rgba(39,174,96,0.15);
+      --text:      #ddd0b8;
+      --muted:     #7a6e5e;
+      --border:    rgba(212,168,67,0.18);
+      --border2:   rgba(255,255,255,0.06);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html { height:100%; }
+    body {
+      font-family:'DM Sans',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100dvh;
+      overflow-x:hidden;
+    }
+
+    /* ── Screens ── */
+    .screen {
+      display:none;
+      flex-direction:column;
+      min-height:100dvh;
+      padding:20px 18px 32px;
+      max-width:430px;
+      margin:0 auto;
+      gap:14px;
+    }
+    .screen.active { display:flex; }
+
+    /* ── Type ── */
+    .title {
+      font-family:'Playfair Display',serif;
+      font-size:2.6rem; font-weight:900;
+      color:var(--gold); line-height:1.05;
+    }
+    .subtitle {
+      font-family:'Playfair Display',serif;
+      font-size:1.6rem; font-weight:700; color:var(--cream);
+    }
+    .caption {
+      font-size:.72rem; text-transform:uppercase;
+      letter-spacing:.1em; color:var(--muted);
+    }
+    .muted { color:var(--muted); font-size:.9rem; }
+
+    /* ── Divider ── */
+    .divider {
+      height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+      opacity:.35;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display:block; width:100%;
+      padding:15px 20px; border:none; border-radius:14px;
+      font-family:'DM Sans',sans-serif; font-size:1rem;
+      font-weight:500; cursor:pointer;
+      transition:all .12s ease; letter-spacing:.02em; user-select:none;
+    }
+    .btn:active { transform:scale(.97); }
+    .btn-primary { background:var(--gold); color:#090d18; font-weight:600; }
+    .btn-primary:hover { background:var(--gold-lt); }
+    .btn-primary:disabled { background:#2a2416; color:#4a3e28; cursor:not-allowed; }
+    .btn-ghost { background:var(--surface2); color:var(--cream); border:1px solid var(--border); }
+
+    .btn-opt {
+      padding:16px 10px; border-radius:14px;
+      border:2px solid var(--border2);
+      background:var(--surface2); color:var(--cream);
+      font-family:'DM Sans',sans-serif; font-size:1rem;
+      font-weight:500; cursor:pointer;
+      transition:all .12s ease; user-select:none;
+    }
+    .btn-opt:active { transform:scale(.95); }
+    .btn-opt:hover  { border-color:var(--gold); background:var(--gold-dim); color:var(--gold-lt); }
+    .btn-opt:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+    .btn-opt.suit { font-size:1.7rem; padding:18px 8px; }
+    .btn-opt.sm   { font-size:.88rem; padding:12px 6px; }
+    .btn-opt.hit  { border-color:#27ae60; background:rgba(39,174,96,.18); color:#70d99a; }
+    .btn-opt.miss { border-color:var(--red); background:var(--red-dim); color:#e07060; }
+
+    /* ── Card ── */
+    .card {
+      width:54px; height:80px; border-radius:8px;
+      border:1.5px solid #ccc; background:#fff;
+      display:flex; flex-direction:column;
+      justify-content:space-between; padding:4px 5px;
+      font-size:.8rem; font-weight:700;
+      box-shadow:0 2px 10px rgba(0,0,0,.5);
+      flex-shrink:0; position:relative; user-select:none;
+    }
+    .card.red   { color:#c0392b; border-color:#f8b8b0; }
+    .card.black { color:#1a1a1a; }
+    .card-top, .card-bot { display:flex; flex-direction:column; align-items:flex-start; line-height:1.1; }
+    .card-bot   { align-items:flex-end; transform:rotate(180deg); }
+    .card-mid   { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.3rem; opacity:.12; }
+    .card-back  { background:linear-gradient(145deg,#1a3a2a 0%,#0d2018 100%); border:1.5px solid var(--gold) !important; }
+    .card-back::after { content:'🥴'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.4rem; opacity:.5; }
+    .card.lg { width:88px; height:126px; border-radius:12px; font-size:1.1rem; }
+    .card.lg .card-mid { font-size:2rem; }
+    .card.active-glow { box-shadow:0 0 0 2px var(--gold),0 4px 18px rgba(212,168,67,.45); }
+    @keyframes pulse-glow {
+      from { box-shadow:0 0 0 2px var(--gold),0 4px 14px rgba(212,168,67,.3); }
+      to   { box-shadow:0 0 0 3px var(--gold-lt),0 4px 22px rgba(212,168,67,.6); }
+    }
+    .card.pulsing { animation:pulse-glow .9s ease-in-out infinite alternate; }
+    @keyframes flip-in { from { transform:rotateY(90deg) scale(.85); opacity:0; } to { transform:rotateY(0) scale(1); opacity:1; } }
+    .flip-in { animation:flip-in .35s ease-out; }
+    @keyframes slide-up { from { transform:translateY(14px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .slide-up { animation:slide-up .25s ease-out; }
+
+    /* ── Hand ── */
+    .hand { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+
+    /* ── Surface box ── */
+    .box { background:var(--surface); border:1px solid var(--border2); border-radius:14px; padding:14px 16px; }
+    .box-gold { border-color:var(--border); }
+
+    /* ── Progress dots ── */
+    .progress { display:flex; gap:5px; }
+    .pdot { flex:1; height:4px; border-radius:2px; background:var(--surface3); }
+    .pdot.done   { background:var(--gold); }
+    .pdot.active { background:var(--gold-lt); }
+
+    /* ── Sub-progress (jugadores en la ronda) ── */
+    .sub-progress { display:flex; gap:4px; }
+    .spdot { flex:1; height:3px; border-radius:2px; background:var(--surface3); }
+    .spdot.done   { background:rgba(212,168,67,.5); }
+    .spdot.active { background:var(--gold-lt); }
+
+    /* ── Player badge ── */
+    .player-badge { text-align:center; padding:14px 12px; }
+    .player-badge .name { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:700; color:var(--gold); }
+    @keyframes badge-flash {
+      0%   { background:var(--gold); box-shadow:0 0 0 4px var(--gold-lt); transform:scale(1.04); }
+      60%  { background:var(--gold-dim); box-shadow:0 0 0 0px transparent; transform:scale(1); }
+      100% { background:var(--surface); box-shadow:none; transform:scale(1); }
+    }
+    .badge-flash { animation:badge-flash .6s ease-out; }
+
+    /* ── Options grids ── */
+    .opts      { display:grid; gap:10px; }
+    .opts.g2   { grid-template-columns:1fr 1fr; }
+    .opts.g4   { grid-template-columns:1fr 1fr 1fr 1fr; }
+    .opts.g4sm { grid-template-columns:repeat(4,1fr); gap:7px; }
+    .opts.g1   { grid-template-columns:1fr; }
+
+    /* ── Overlay resultado ── */
+    .overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(9,13,24,.93); z-index:200;
+      flex-direction:column; align-items:center;
+      justify-content:center; padding:24px 20px;
+      gap:18px; text-align:center;
+    }
+    .overlay.show { display:flex; animation:fade-in .2s ease; }
+    @keyframes fade-in { from{opacity:0} to{opacity:1} }
+    @keyframes bounce-in { 0%{transform:scale(.4)} 70%{transform:scale(1.15)} 100%{transform:scale(1)} }
+    .res-emoji { font-size:4rem; animation:bounce-in .4s ease; }
+    .res-title { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; }
+    .res-title.acierto { color:#6dce95; }
+    .res-title.fallo   { color:#e07060; }
+    .res-title.neutro  { color:var(--gold-lt); }
+    .res-drinks { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 28px; min-width:220px; }
+    .res-drinks .num { font-size:2.6rem; font-weight:700; color:var(--gold); font-family:'Playfair Display',serif; }
+
+    /* ── Setup screen ── */
+    .setup-hero { text-align:center; padding:24px 0 10px; }
+    .setup-hero .bus { font-size:3.2rem; margin-bottom:6px; }
+    .input-row { display:flex; gap:10px; }
+    .input-row input {
+      flex:1; padding:14px 16px; border-radius:12px;
+      border:1.5px solid var(--border2);
+      background:var(--surface2); color:var(--cream);
+      font-family:'DM Sans',sans-serif; font-size:1rem;
+      outline:none; transition:border-color .2s;
+    }
+    .input-row input:focus { border-color:var(--gold); }
+    .input-row input::placeholder { color:var(--muted); }
+    .btn-plus {
+      padding:14px 18px; border-radius:12px;
+      background:var(--surface2); border:1.5px solid var(--border);
+      color:var(--gold); font-size:1.5rem; cursor:pointer; transition:all .12s;
+    }
+    .btn-plus:active { background:var(--gold-dim); }
+    .p-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+    .p-item {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 14px; background:var(--surface);
+      border-radius:12px; border:1px solid var(--border2);
+      animation:slide-up .2s ease;
+    }
+    .p-num {
+      width:28px; height:28px; border-radius:50%;
+      background:var(--gold); color:#090d18;
+      font-weight:700; font-size:.8rem;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .p-name { flex:1; font-size:.97rem; }
+    .btn-rm { background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer; padding:4px 6px; }
+    .btn-rm:hover { color:#e07060; }
+
+    /* ── Transition & round screens ── */
+    #screen-trans, #screen-new-round, #screen-fin, #screen-pyr-intro {
+      align-items:center; justify-content:center; text-align:center;
+    }
+    .trans-name { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:900; color:var(--gold); }
+    .round-announce { font-family:'Playfair Display',serif; font-size:3.5rem; font-weight:900; color:var(--gold); line-height:1.1; }
+    .round-subtitle { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--cream); margin-top:6px; }
+
+    /* ── Pyramid intro ── */
+    #screen-pyr-intro { gap:16px; }
+
+    /* ── Fase 2 ── */
+    .pyr-section { border-radius:14px; padding:14px 12px; background:var(--surface); }
+    .pyr-section.t { border:1px solid rgba(192,57,43,.3); }
+    .pyr-section.r { border:1px solid rgba(39,174,96,.3); }
+    .pyr-row { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+    .pyr-wrap { position:relative; }
+    .pyr-num { position:absolute; top:-13px; left:50%; transform:translateX(-50%); font-size:.6rem; color:var(--muted); font-weight:600; }
+    .f2-header { border-radius:14px; padding:14px 16px; text-align:center; border:1px solid var(--border2); background:var(--surface); }
+    .f2-header.t-turn { border-color:rgba(192,57,43,.4); }
+    .f2-header.r-turn { border-color:rgba(39,174,96,.4); }
+    .f2-header .sub  { font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+    .f2-header .main { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--cream); margin-top:2px; }
+    .matches-box { border-radius:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--border2); min-height:60px; }
+    .matches-box .lbl { font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:10px; }
+    .match-item { padding:10px 12px; background:var(--bg); border-radius:10px; margin-bottom:8px; border-left:3px solid var(--gold); font-size:.92rem; }
+    .match-item:last-child { margin-bottom:0; }
+    .match-item strong { color:var(--gold); }
+
+    /* ── Utils ── */
+    .spacer { flex:1; }
+    .tc { text-align:center; }
+    .mt8  { margin-top:8px; }
+    .mt12 { margin-top:12px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ SETUP ═══════════════════ -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-hero">
+    <div class="bus">🥴</div>
+    <div class="title">El Empedador</div>
+    <p class="muted mt8">Agrega a los jugadores para comenzar</p>
+  </div>
+  <div class="divider"></div>
+  <div class="input-row">
+    <input id="inp-nombre" type="text" placeholder="Nombre del jugador" maxlength="18" autocomplete="off">
+    <button class="btn-plus" onclick="addPlayer()">＋</button>
+  </div>
+  <ul class="p-list" id="p-list"></ul>
+  <div id="rounds-warning" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px 14px; font-size:.88rem; color:var(--gold); text-align:center; line-height:1.6;"></div>
+  <div class="spacer"></div>
+  <button class="btn btn-primary" id="btn-start" onclick="startGame()" disabled>Iniciar Juego →</button>
+  <p class="muted tc">Mínimo 2 jugadores</p>
+</div>
+
+<!-- ═══════════════════ FASE 1 ═══════════════════ -->
+<div id="screen-f1" class="screen">
+  <!-- barra de rondas (7 puntos) -->
+  <div class="progress" id="progress"></div>
+  <!-- barra de jugadores en la ronda actual -->
+  <div class="sub-progress" id="sub-progress"></div>
+
+  <div class="box box-gold player-badge">
+    <div class="caption">Turno de</div>
+    <div class="name" id="f1-pname">—</div>
+  </div>
+
+  <div class="box tc">
+    <div class="caption" id="f1-rnum">Ronda 1 de 7</div>
+    <div class="subtitle mt8" id="f1-question">¿Rojo o Negro?</div>
+    <div style="color:var(--gold);font-size:.85rem;margin-top:6px;" id="f1-drinks">
+      🍺 Acierta: repartes 1 · Fallas: tomas 1
+    </div>
+  </div>
+
+  <div class="box" id="f1-hand-box" style="display:none">
+    <div class="caption tc" style="margin-bottom:10px">Tu mano</div>
+    <div class="hand" id="f1-hand"></div>
+  </div>
+
+  <div id="f1-opts" class="opts g2"></div>
+</div>
+
+<!-- ═══════════════════ RESULTADO OVERLAY ═══════════════════ -->
+<div class="overlay" id="overlay-res">
+  <div class="res-emoji" id="res-emoji">🎉</div>
+  <div class="res-title" id="res-title">¡Acierto!</div>
+  <div id="res-card" style="margin:4px 0"></div>
+  <div class="res-drinks">
+    <div class="num" id="res-num">2</div>
+    <div id="res-txt">tragos que repartes 🫵</div>
+  </div>
+  <button class="btn btn-primary" style="max-width:220px" onclick="closeResult()">Continuar →</button>
+</div>
+
+<!-- ═══════════════════ NUEVA RONDA ═══════════════════ -->
+<div id="screen-new-round" class="screen">
+  <div style="font-size:3rem">🃏</div>
+  <div class="round-announce" id="nr-num">Ronda 2</div>
+  <div class="round-subtitle" id="nr-q">¿Arriba o Abajo?</div>
+  <p class="muted" style="max-width:260px; line-height:1.7" id="nr-hint"></p>
+  <button class="btn btn-primary" style="max-width:220px" onclick="onContinue()">¡A jugar!</button>
+</div>
+
+<!-- ═══════════════════ INTRO PIRÁMIDE ═══════════════════ -->
+<div id="screen-pyr-intro" class="screen">
+  <div style="font-size:3.5rem">💀</div>
+  <div class="subtitle">La Sentencia 💀</div>
+  <div class="divider"></div>
+  <p id="pyr-intro-body" style="color:var(--muted);line-height:1.75;font-size:.95rem">
+    Se revelan <strong style="color:var(--cream)">7 cartas de Toma</strong>
+    y <strong style="color:var(--cream)">7 cartas de Reparte</strong>,
+    de menor a mayor.<br><br>
+    Si tienes en tu mano una carta del <strong style="color:var(--cream)">mismo valor</strong>
+    que la destapada, ¡te aplica!
+  </p>
+  <div id="pyr-intro-scale" class="box" style="font-size:.9rem;line-height:1.9;color:var(--muted)">
+    🔴 Toma 1 &nbsp;→&nbsp; 🟢 Reparte 1<br>
+    🔴 Toma 2 &nbsp;→&nbsp; 🟢 Reparte 2<br>
+    <span style="color:var(--surface3)">——————</span><br>
+    🔴 Toma 7 &nbsp;→&nbsp; 🟢 Reparte 7
+  </div>
+  <div class="spacer"></div>
+  <button class="btn btn-primary" onclick="startF2()">¡A la Sentencia! 💀</button>
+</div>
+
+<!-- ═══════════════════ FASE 2 ═══════════════════ -->
+<div id="screen-f2" class="screen">
+  <div class="f2-header" id="f2-header">
+    <div class="sub" id="f2-sub">Turno</div>
+    <div class="main" id="f2-main">—</div>
+  </div>
+  <div class="pyr-section t">
+    <div class="caption" style="color:#e07060;margin-bottom:10px">🔴 Toma</div>
+    <div class="pyr-row" id="f2-toma"></div>
+  </div>
+  <div class="pyr-section r">
+    <div class="caption" style="color:#6dce95;margin-bottom:10px">🟢 Reparte</div>
+    <div class="pyr-row" id="f2-reparte"></div>
+  </div>
+  <div class="matches-box">
+    <div class="lbl" id="f2-mlbl">Coincidencias</div>
+    <div id="f2-matches"><p class="muted tc">Destapa una carta para ver coincidencias</p></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn btn-primary" id="btn-destapar" onclick="destapar()">Destapar carta →</button>
+</div>
+
+<!-- ═══════════════════ FIN ═══════════════════ -->
+<div id="screen-fin" class="screen">
+  <div style="font-size:5rem">🎊</div>
+  <div class="subtitle">¡Fin del juego!</div>
+  <div class="divider"></div>
+  <p class="muted tc" style="line-height:1.7">
+    El Empedador llegó a su destino.<br>Espero que hayan bebido con responsabilidad 🥴
+  </p>
+  <div class="spacer"></div>
+  <button class="btn btn-primary" style="max-width:220px;margin:0 auto" onclick="restart()">Jugar de nuevo</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONSTANTES
+═══════════════════════════════════════════════ */
+const PALOS = ['♠','♥','♦','♣'];
+const ROJOS = new Set(['♥','♦']);
+const VSYM  = {1:'A',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K'};
+
+const ROUNDS = [
+  { q:'¿Rojo o Negro?',       opts:['Rojo','Negro'],          grid:'g2',   hint:'' },
+  { q:'¿Arriba o Abajo?',     opts:['Arriba','Abajo'],         grid:'g2',   hint:'Respecto a tu primera carta. Si el valor es igual, ¡fallas!' },
+  { q:'¿Adentro o Afuera?',   opts:['Adentro','Afuera'],       grid:'g2',   hint:'Entre los valores de tus dos primeras cartas. Si cae igual a un extremo, ¡fallas!' },
+  { q:'¿De qué palo es?',     opts:['♠','♥','♦','♣'],          grid:'g4',   hint:'' },
+  { q:'¿Qué número tiene?',   opts:['A','2','3','4','5','6','7','8','9','10','J','Q','K'], grid:'g4sm', hint:'' },
+  { q:'¡Roben su carta!',     opts:null,                       grid:'g1',   hint:'Si la carta completa un par con tu mano, ¡tomas! Si no, ¡repartes!' },
+  { q:'¿Carta exacta?',       opts:null,                       grid:'g4sm', hint:'' },
+];
+
+/* ═══════════════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════════════ */
+let G = {
+  deck:[],
+  players:[],   // [{nombre, mano:[{p,v}]}]
+  round:1,
+  maxRondas:7,  // se recalcula según jugadores (52 - 14 cartas pirámide = 38 disponibles)
+  pIdx:0,       // jugador actual dentro de la ronda
+  pyr:{ toma:[], reparte:[], step:0 },
+  nextScreen:null,
+  r7valor:null,
+};
+let tempPlayers = [];
+
+/* ═══════════════════════════════════════════════
+   HELPERS – MAZO
+═══════════════════════════════════════════════ */
+function buildDeck(){
+  const d=[];
+  for(const p of PALOS) for(let v=1;v<=13;v++) d.push({p,v});
+  return shuffle(d);
+}
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+/* ═══════════════════════════════════════════════
+   HELPERS – RENDER CARTAS
+═══════════════════════════════════════════════ */
+function vs(v){ return VSYM[v]; }
+function isRed(c){ return ROJOS.has(c.p); }
+
+function cardHTML(c, cls=''){
+  const col = isRed(c)?'red':'black';
+  const v   = vs(c.v);
+  return `<div class="card ${col} ${cls}">
+    <div class="card-top"><span>${v}</span><span>${c.p}</span></div>
+    <div class="card-mid">${c.p}</div>
+    <div class="card-bot"><span>${v}</span><span>${c.p}</span></div>
+  </div>`;
+}
+function backHTML(extra=''){
+  return `<div class="card card-back ${extra}"></div>`;
+}
+
+/* ═══════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════ */
+function addPlayer(){
+  const el = document.getElementById('inp-nombre');
+  const n  = el.value.trim();
+  if(!n || tempPlayers.length>=10) return;
+  tempPlayers.push(n);
+  el.value=''; el.focus();
+  renderPList();
+  document.getElementById('btn-start').disabled = tempPlayers.length < 2;
+}
+document.getElementById('inp-nombre').addEventListener('keydown', e=>{
+  if(e.key==='Enter') addPlayer();
+});
+function removePlayer(i){
+  tempPlayers.splice(i,1);
+  renderPList();
+  document.getElementById('btn-start').disabled = tempPlayers.length < 2;
+}
+function renderPList(){
+  document.getElementById('p-list').innerHTML = tempPlayers.map((n,i)=>`
+    <li class="p-item">
+      <div class="p-num">${i+1}</div>
+      <span class="p-name">${n}</span>
+      <button class="btn-rm" onclick="removePlayer(${i})">✕</button>
+    </li>`).join('');
+
+  // Aviso si las rondas se recortan
+  const warn = document.getElementById('rounds-warning');
+  const n = tempPlayers.length;
+  if(n >= 2){
+    const max = Math.min(7, Math.floor(38 / n));
+    if(max < 7){
+      warn.style.display = 'block';
+      warn.textContent = `⚠️ Con ${n} jugadores la baraja alcanza para ${max} de 7 rondas. Las últimas se eliminan automáticamente.`;
+    } else {
+      warn.style.display = 'none';
+    }
+  } else {
+    warn.style.display = 'none';
+  }
+}
+function startGame(){
+  if(tempPlayers.length<2) return;
+  const n = tempPlayers.length;
+  const maxRondas = Math.min(7, Math.floor(38 / n)); // 38 = 52 - 14 reservadas para pirámide
+  G.deck      = buildDeck();
+  G.players   = tempPlayers.map(n=>({nombre:n, mano:[]}));
+  G.round     = 1;
+  G.maxRondas = maxRondas;
+  G.pIdx      = 0;
+  show('screen-f1');
+  renderF1();
+}
+
+/* ═══════════════════════════════════════════════
+   FASE 1 – RENDER
+   Flujo: todos hacen ronda 1, luego todos la 2, etc.
+═══════════════════════════════════════════════ */
+function renderF1(){
+  const p   = G.players[G.pIdx];
+  const r   = G.round;
+  const cfg = ROUNDS[r-1];
+
+  // Barra de rondas (progreso global)
+  document.getElementById('progress').innerHTML =
+    Array.from({length:G.maxRondas},(_,i)=>
+      `<div class="pdot ${i<r-1?'done':i===r-1?'active':''}"></div>`
+    ).join('');
+
+  // Barra de jugadores en la ronda actual
+  document.getElementById('sub-progress').innerHTML =
+    G.players.map((_,i)=>
+      `<div class="spdot ${i<G.pIdx?'done':i===G.pIdx?'active':''}"></div>`
+    ).join('');
+
+  document.getElementById('f1-pname').textContent    = p.nombre;
+  document.getElementById('f1-rnum').textContent     = `Ronda ${r} de ${G.maxRondas}`;
+  document.getElementById('f1-question').textContent = cfg.q;
+
+  // Para ronda 6 el resultado es automático, se muestra info diferente
+  if(r===6){
+    document.getElementById('f1-drinks').textContent = '🍺 Par = tomas · Sin par = repartes';
+  } else {
+    document.getElementById('f1-drinks').textContent =
+      `🍺 Acierta: repartes ${r} · Fallas: tomas ${r}`;
+  }
+
+  // Mano del jugador
+  const hbox = document.getElementById('f1-hand-box');
+  if(p.mano.length){
+    hbox.style.display='block';
+    document.getElementById('f1-hand').innerHTML = p.mano.map(c=>cardHTML(c)).join('');
+  } else {
+    hbox.style.display='none';
+  }
+
+  G.r7valor = null;
+  renderOpts();
+}
+
+function renderOpts(){
+  const r   = G.round;
+  const cfg = ROUNDS[r-1];
+  const el  = document.getElementById('f1-opts');
+  el.className = 'opts ' + cfg.grid;
+
+  // Ronda 6: botón único, sin adivinanza
+  if(r===6){
+    el.innerHTML = `<button class="btn-opt" onclick="answerAuto()" style="grid-column:1/-1;font-size:1.05rem;padding:20px">
+      Robar carta →
+    </button>`;
+    return;
+  }
+
+  // Ronda 7: selección en 2 pasos
+  if(r===7){
+    renderR7Step1();
+    return;
+  }
+
+  el.innerHTML = cfg.opts.map(op=>{
+    const extra = r===4?'suit': r===5?'sm':'';
+    return `<button class="btn-opt ${extra}" onclick="answer('${op}')">${op}</button>`;
+  }).join('');
+}
+
+// Ronda 7 paso 1: elige valor
+function renderR7Step1(){
+  const el = document.getElementById('f1-opts');
+  el.className = 'opts g4sm';
+  el.innerHTML = Object.entries(VSYM).map(([v,l])=>
+    `<button class="btn-opt sm" onclick="r7pickValor('${l}',${v})">${l}</button>`
+  ).join('');
+}
+// Ronda 7 paso 2: elige palo
+function r7pickValor(label, num){
+  G.r7valor = {label, num};
+  const el = document.getElementById('f1-opts');
+  el.className = 'opts g4';
+  el.innerHTML = PALOS.map(p=>
+    `<button class="btn-opt suit" onclick="answer('${label}${p}')">${p}</button>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   FASE 1 – LÓGICA
+═══════════════════════════════════════════════ */
+function answer(resp){
+  document.querySelectorAll('#f1-opts .btn-opt').forEach(b=>b.disabled=true);
+  const carta = G.deck.pop();
+  const p     = G.players[G.pIdx];
+  const r     = G.round;
+  const hit   = evaluate(resp, carta, p.mano, r);
+  p.mano.push(carta);
+  showResult(hit, carta, r);
+}
+
+// Ronda 6: sin adivinanza, par = REPARTES, sin par = TOMAS
+function answerAuto(){
+  document.querySelectorAll('#f1-opts .btn-opt').forEach(b=>b.disabled=true);
+  const carta = G.deck.pop();
+  const p     = G.players[G.pIdx];
+  const r     = G.round;
+  const hasPar = p.mano.some(c=>c.v===carta.v);
+  p.mano.push(carta);
+  showResultAuto(hasPar, carta, r);
+}
+
+function evaluate(resp, c, mano, r){
+  switch(r){
+    case 1:{
+      const red = isRed(c);
+      return resp==='Rojo' ? red : !red;
+    }
+    case 2:{
+      const ref = mano[0].v;
+      if(c.v===ref) return false; // igual = falla
+      return resp==='Arriba' ? c.v>ref : c.v<ref;
+    }
+    case 3:{
+      const [lo,hi] = [mano[0].v,mano[1].v].sort((a,b)=>a-b);
+      if(c.v===lo || c.v===hi) return false; // igual a extremo = falla
+      const inside = c.v>lo && c.v<hi;
+      return resp==='Adentro' ? inside : !inside;
+    }
+    case 4: return resp===c.p;
+    case 5: return resp===vs(c.v);
+    case 7: return resp===vs(c.v)+c.p;
+    default: return false;
+  }
+}
+
+function showResult(hit, carta, r){
+  document.getElementById('res-emoji').textContent  = hit?'🎉':'😬';
+  const ttl = document.getElementById('res-title');
+  ttl.textContent = hit?'¡Acierto!':'¡Fallo!';
+  ttl.className   = 'res-title '+(hit?'acierto':'fallo');
+  document.getElementById('res-card').innerHTML =
+    `<div style="display:flex;justify-content:center">${cardHTML(carta,'lg flip-in')}</div>`;
+  document.getElementById('res-num').textContent = r;
+  document.getElementById('res-txt').textContent = hit
+    ? `trago${r>1?'s':''} que repartes 🫵`
+    : `trago${r>1?'s':''} que te tomas 🍺`;
+  document.getElementById('overlay-res').classList.add('show');
+}
+
+// Resultado automático ronda 6: par = repartes, sin par = tomas
+function showResultAuto(hasPar, carta, r){
+  if(hasPar){
+    document.getElementById('res-emoji').textContent  = '😏';
+    const ttl = document.getElementById('res-title');
+    ttl.textContent = '¡Par!';
+    ttl.className   = 'res-title acierto';
+    document.getElementById('res-num').textContent = r;
+    document.getElementById('res-txt').textContent = `trago${r>1?'s':''} que repartes 🫵`;
+  } else {
+    document.getElementById('res-emoji').textContent  = '😬';
+    const ttl = document.getElementById('res-title');
+    ttl.textContent = '¡Sin par!';
+    ttl.className   = 'res-title fallo';
+    document.getElementById('res-num').textContent = r;
+    document.getElementById('res-txt').textContent = `trago${r>1?'s':''} que te tomas 🍺`;
+  }
+  document.getElementById('res-card').innerHTML =
+    `<div style="display:flex;justify-content:center">${cardHTML(carta,'lg flip-in')}</div>`;
+  document.getElementById('overlay-res').classList.add('show');
+}
+
+function closeResult(){
+  document.getElementById('overlay-res').classList.remove('show');
+  advanceF1();
+}
+
+/* ═══════════════════════════════════════════════
+   AVANCE: ronda-primero, jugadores después
+═══════════════════════════════════════════════ */
+function advanceF1(){
+  if(G.pIdx < G.players.length - 1){
+    // Quedan más jugadores en esta ronda → flash y siguiente jugador
+    G.pIdx++;
+    show('screen-f1');
+    renderF1();
+    // Flashazo en el badge para notificar el cambio
+    const badge = document.querySelector('#screen-f1 .player-badge');
+    badge.classList.remove('badge-flash');
+    void badge.offsetWidth; // reflow para reiniciar animación
+    badge.classList.add('badge-flash');
+    badge.addEventListener('animationend', ()=>badge.classList.remove('badge-flash'), {once:true});
+  } else {
+    // Todos los jugadores terminaron esta ronda
+    G.pIdx = 0;
+    if(G.round < G.maxRondas){
+      G.round++;
+      const cfg = ROUNDS[G.round-1];
+      document.getElementById('nr-num').textContent  = `Ronda ${G.round}`;
+      document.getElementById('nr-q').textContent   = cfg.q;
+      document.getElementById('nr-hint').textContent = cfg.hint || '';
+      G.nextScreen = 'f1';
+      show('screen-new-round');
+    } else {
+      preparePyr();
+      // Actualizar intro con número real de cartas según rondas
+      const m = G.maxRondas;
+      document.getElementById('pyr-intro-body').innerHTML =
+        `Se revelan <strong style="color:var(--cream)">${m} cartas de Toma</strong>
+        y <strong style="color:var(--cream)">${m} cartas de Reparte</strong>,
+        de menor a mayor.<br><br>
+        Si tienes en tu mano una carta del <strong style="color:var(--cream)">mismo valor</strong>
+        que la destapada, ¡te aplica!`;
+      document.getElementById('pyr-intro-scale').innerHTML =
+        `🔴 Toma 1 &nbsp;→&nbsp; 🟢 Reparte 1<br>
+        🔴 Toma 2 &nbsp;→&nbsp; 🟢 Reparte 2<br>
+        <span style="color:var(--surface3)">——————</span><br>
+        🔴 Toma ${m} &nbsp;→&nbsp; 🟢 Reparte ${m}`;
+      show('screen-pyr-intro');
+    }
+  }
+}
+
+function onContinue(){
+  // Solo se usa para la pantalla de nueva ronda
+  if(G.nextScreen==='f1'){
+    show('screen-f1');
+    renderF1();
+  }
+  G.nextScreen = null;
+}
+
+/* ═══════════════════════════════════════════════
+   FASE 2 – PIRÁMIDE
+═══════════════════════════════════════════════ */
+function preparePyr(){
+  G.pyr.toma    = G.deck.splice(0, G.maxRondas);
+  G.pyr.reparte = G.deck.splice(0, G.maxRondas);
+  G.pyr.step    = 0;
+}
+function startF2(){
+  show('screen-f2');
+  renderF2();
+}
+function renderF2(){
+  renderPyrRows();
+  renderF2Header();
+  renderMatches(null);
+}
+function renderPyrRows(){
+  const s = G.pyr.step;
+  document.getElementById('f2-toma').innerHTML =
+    G.pyr.toma.map((c,i)=>{
+      const revealed = s > i*2;
+      const isCur    = s === i*2;
+      return `<div class="pyr-wrap">
+        <div class="pyr-num">${i+1}</div>
+        ${revealed ? cardHTML(c,'flip-in') : backHTML(isCur?'pulsing active-glow':'')}
+      </div>`;
+    }).join('');
+  document.getElementById('f2-reparte').innerHTML =
+    G.pyr.reparte.map((c,i)=>{
+      const revealed = s > i*2+1;
+      const isCur    = s === i*2+1;
+      return `<div class="pyr-wrap">
+        <div class="pyr-num">${i+1}</div>
+        ${revealed ? cardHTML(c,'flip-in') : backHTML(isCur?'pulsing active-glow':'')}
+      </div>`;
+    }).join('');
+}
+function renderF2Header(){
+  const s     = G.pyr.step;
+  const total = G.maxRondas * 2;
+  const hdr   = document.getElementById('f2-header');
+  if(s >= total){
+    hdr.className='f2-header';
+    document.getElementById('f2-sub').textContent  = '¡Sentencia cumplida!';
+    document.getElementById('f2-main').textContent = '🎊 Fin del juego';
+    return;
+  }
+  const esToma = s%2===0;
+  const n      = Math.floor(s/2)+1;
+  hdr.className = 'f2-header '+(esToma?'t-turn':'r-turn');
+  document.getElementById('f2-sub').textContent  = esToma?'🔴 Destapar TOMA':'🟢 Destapar REPARTE';
+  document.getElementById('f2-main').textContent = `${n} trago${n>1?'s':''}`;
+}
+function renderMatches(carta){
+  const s   = G.pyr.step;
+  const el  = document.getElementById('f2-matches');
+  const lbl = document.getElementById('f2-mlbl');
+  if(!carta){
+    lbl.textContent='Coincidencias';
+    el.innerHTML='<p class="muted tc">Destapa una carta para ver coincidencias</p>';
+    return;
+  }
+  const prevStep = s-1;
+  const esToma   = prevStep%2===0;
+  const n        = Math.floor(prevStep/2)+1;
+  lbl.textContent = `Carta revelada: ${vs(carta.v)}${carta.p}`;
+  const hits = G.players
+    .map(p=>({ nombre:p.nombre, cartas:p.mano.filter(c=>c.v===carta.v) }))
+    .filter(m=>m.cartas.length>0);
+  if(!hits.length){
+    el.innerHTML='<p class="muted tc">Nadie coincide 👀</p>';
+    return;
+  }
+  el.innerHTML = hits.map(m=>{
+    const total = n * m.cartas.length; // se acumulan por cada carta coincidente
+    const extra = m.cartas.length > 1 ? ` <span style="color:var(--muted);font-size:.8rem">(${m.cartas.length} cartas × ${n})</span>` : '';
+    const accion = esToma
+      ? `🍺 Toma <strong>${total}</strong> trago${total>1?'s':''}${extra}`
+      : `🫵 Reparte <strong>${total}</strong> trago${total>1?'s':''}${extra}`;
+    return `<div class="match-item slide-up">
+      <div style="font-weight:600;margin-bottom:6px">${m.nombre} — ${accion}</div>
+      <div class="hand" style="justify-content:flex-start;gap:6px">
+        ${m.cartas.map(c=>cardHTML(c)).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function destapar(){
+  const s     = G.pyr.step;
+  const total = G.maxRondas * 2;
+  if(s >= total) return;
+  const esToma = s%2===0;
+  const idx    = Math.floor(s/2);
+  const carta  = esToma ? G.pyr.toma[idx] : G.pyr.reparte[idx];
+  G.pyr.step++;
+  renderPyrRows();
+  renderF2Header();
+  renderMatches(carta);
+  if(G.pyr.step >= total){
+    const btn = document.getElementById('btn-destapar');
+    btn.textContent='¡Fin del Empedador! 🥴';
+    btn.onclick=()=>show('screen-fin');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function restart(){
+  tempPlayers=[];
+  G={ deck:[], players:[], round:1, pIdx:0,
+      pyr:{toma:[],reparte:[],step:0}, nextScreen:null, r7valor:null };
+  renderPList();
+  document.getElementById('btn-start').disabled=true;
+  show('screen-setup');
+}
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
+</body>
+</html>
